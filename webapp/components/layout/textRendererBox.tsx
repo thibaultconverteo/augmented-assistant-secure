@@ -6,7 +6,11 @@ function RenderText({ textToRender }: { textToRender: string }) {
   if (textToRender) {
     return <p>{textToRender}</p>;
   }
-  return <div className=" text-2xl font-medium">How can I help you ?</div>;
+  return (
+    <div className=" lg:text-2xl sm:text-xl font-medium">
+      How can I help you ?
+    </div>
+  );
 }
 
 export default function TextRendererBox(props: TextRendererBoxProps) {

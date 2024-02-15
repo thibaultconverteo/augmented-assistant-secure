@@ -26,7 +26,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="h-full flex">
+          <div className="h-full flex w-screen">
             <div className="bg-gray-300 dark:bg-black flex justify-center p-5 h-full top-0 left-0 w-1/6">
               <LorealSvg className="dark:fill-white" />
             </div>
@@ -35,7 +35,7 @@ export default function RootLayout({
                 <header className=" top-0 w-full">
                   <div className="flex h-14 max-w-screen-2xl items-center justify-center">
                     <div>
-                      <h1 className="text-2xl font-semibold text-gray-700 dark:text-white">
+                      <h1 className="lg:text-2xl sm:text-xl font-semibold text-gray-700 dark:text-white">
                         Augmented Chatbot
                       </h1>
                     </div>

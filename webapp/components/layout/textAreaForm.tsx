@@ -21,14 +21,14 @@ export default function TextAreaForm(props: TextAreaFormProps) {
   };
 
   return (
-    <div className="w-96">
+    <div className="w-full">
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-[1fr_auto] gap-2 justify-center items-center">
           <Textarea
             value={inputValue}
             onChange={handleChange}
             placeholder="Type something..."
-            className="flex min-h-10 max-h-96 resize-none w-full"
+            className="flex min-h-10 max-h-96 resize-none w-full "
           ></Textarea>
 
           <Button type="submit" size="icon">
