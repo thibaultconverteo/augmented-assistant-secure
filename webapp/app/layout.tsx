@@ -40,7 +40,7 @@ export default function RootLayout({
                       </h1>
                     </div>
 
-                    <div className="absolute right-10 items-center justify-end">
+                    <div className="absolute lg:right-10 right-0 items-center">
                       <ModeToggle />
                     </div>
                   </div>

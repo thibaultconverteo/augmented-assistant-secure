@@ -7,11 +7,26 @@ interface TextAreaFormProps {
   onTextSubmit: (text: string) => void;
 }
 
+const ResizableTextArea: React.FC<{
+  inputValue: string;
+  handleChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+}> = ({ inputValue, handleChange }) => {
+  return (
+    <Textarea
+      value={inputValue}
+      onChange={handleChange}
+      placeholder="Type something..."
+      className="flex min-h-10 max-h-96 w-full resize-none md:w-[400px] lg:w-[500px] xl:w-[600px] 2xl:w-[700px] "
+      style={{ height: `calc(1em + ${inputValue.split("\n").length * 1.2}em)` }}
+    ></Textarea>
+  );
+};
+
 export default function TextAreaForm(props: TextAreaFormProps) {
   const [inputValue, setInputValue] = useState("");
 
-  const handleChange = (e: { target: { value: SetStateAction<string> } }) => {
-    setInputValue(e.target.value);
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInputValue(event.target.value);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -21,15 +36,13 @@ export default function TextAreaForm(props: TextAreaFormProps) {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full flex justify-center ">
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-[1fr_auto] gap-2 justify-center items-center">
-          <Textarea
-            value={inputValue}
-            onChange={handleChange}
-            placeholder="Type something..."
-            className="flex min-h-10 max-h-96 resize-none w-full "
-          ></Textarea>
+        <div className="grid grid-cols-[1fr_auto] gap-2 justify-center items-center w-full">
+          <ResizableTextArea
+            inputValue={inputValue}
+            handleChange={handleChange}
+          />
 
           <Button type="submit" size="icon">
             <ArrowUpIcon className="h-5 w-5" />
