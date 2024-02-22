@@ -1,0 +1,10 @@
+[
+  {
+    "label": "text",
+    "content": "sample text"
+  },
+  {
+    "label": "html",
+    "content": "<table border='1'> <thead> <tr> <th rowspan='2'>Name</th> <th colspan='3'>Scores</th> </tr> <tr> <th>Math</th> <th>Science</th> <th>History</th> </tr> </thead> <tbody> <tr> <td>John</td> <td>90</td> <td>85</td> <td>92</td> </tr> <tr> <td>Mary</td> <td>88</td> <td>92</td> <td>87</td> </tr> <tr> <td>Emma</td> <td>95</td> <td>90</td> <td>94</td> </tr> </tbody> <tfoot> <tr> <td>Total</td> <td>273</td> <td>267</td> <td>273</td> </tr> </tfoot> </table>"
+  }
+]
