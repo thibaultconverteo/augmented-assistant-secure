@@ -17,7 +17,10 @@ const ResizableTextArea: React.FC<{
       onChange={handleChange}
       placeholder="Type something..."
       className="flex min-h-10 max-h-96 w-full resize-none md:w-[400px] lg:w-[500px] xl:w-[600px] 2xl:w-[700px] "
-      style={{ height: `calc(1em + ${inputValue.split("\n").length * 1.2}em)` }}
+      style={{
+        height: `calc(1em + ${inputValue.split("\n").length * 1.2}em)`,
+        maxHeight: "20em",
+      }}
     ></Textarea>
   );
 };
