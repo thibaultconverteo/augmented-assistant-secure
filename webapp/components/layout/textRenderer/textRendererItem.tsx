@@ -22,7 +22,10 @@ export default function TextRendererItem(props: TextRendererItemProps) {
         <p>{userIcon[props.user]}</p>
         {UserName(props)}
       </div>
-      <div dangerouslySetInnerHTML={{ __html: props.text }} />
+      <div
+        dangerouslySetInnerHTML={{ __html: props.text }}
+        className="whitespace-pre-wrap break-words"
+      />
     </div>
   );
 }
