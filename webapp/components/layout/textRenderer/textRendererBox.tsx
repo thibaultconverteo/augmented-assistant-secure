@@ -3,15 +3,20 @@ import TextRendererCard from "./textRendererCard";
 
 interface TextRendererBoxProps {
   prompt: string;
+  response: string;
 }
 
 let random = Math.floor(Math.random() * 2);
 
-function RenderText({ promptToRender }: { promptToRender: string }) {
+function RenderText({
+  promptToRender,
+  data,
+}: {
+  promptToRender: string;
+  data: string;
+}) {
   if (promptToRender) {
-    let random = Math.floor(Math.random() * 2);
-    const content = data[random].content;
-    return <TextRendererCard prompt={promptToRender} data={content} />;
+    return <TextRendererCard prompt={promptToRender} data={data} />;
   }
 
   return (
@@ -24,7 +29,7 @@ function RenderText({ promptToRender }: { promptToRender: string }) {
 export default function TextRendererBox(props: TextRendererBoxProps) {
   return (
     <div className="flex h-full flex-col items-center justify-center max-w-100%">
-      <RenderText promptToRender={props.prompt} />
+      <RenderText promptToRender={props.prompt} data={props.response} />
     </div>
   );
 }
