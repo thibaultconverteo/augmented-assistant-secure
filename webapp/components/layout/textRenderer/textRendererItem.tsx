@@ -8,7 +8,7 @@ interface TextRendererItemProps {
 
 const userIcon = {
   chatbot: "🤖",
-  user: "👤",
+  user: "🙂",
 };
 
 function UserName(props: TextRendererItemProps) {

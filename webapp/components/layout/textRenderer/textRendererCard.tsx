@@ -28,17 +28,14 @@ export default function TextRendererCard(props: TextRendererCardProps) {
 
   return (
     <div className="grid grid-cols items-start justify-center max-w-100% gap-10 h-full">
-      {/* {chatHistory.map((message, index) => (
+      {chatHistory.map((message, index) => (
         <TextRendererItem key={index} text={message.text} user={message.user} />
       ))}
       <div className=" hidden">
         <TextRendererItem text={props.prompt} user="user" />
 
         <TextRendererItem text={props.data} user="chatbot" />
-      </div> */}
-      <TextRendererItem text={props.prompt} user="user" />
-
-      <TextRendererItem text={props.data} user="chatbot" />
+      </div>
     </div>
   );
 }
