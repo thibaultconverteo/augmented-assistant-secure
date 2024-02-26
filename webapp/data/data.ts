@@ -12,5 +12,5 @@ export async function getData(prompt: string | undefined) {
   );
 
   const data = await res.json();
-  return data;
+  return data.response;
 }

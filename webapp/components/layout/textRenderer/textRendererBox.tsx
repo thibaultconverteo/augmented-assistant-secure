@@ -6,8 +6,6 @@ interface TextRendererBoxProps {
   response: string;
 }
 
-let random = Math.floor(Math.random() * 2);
-
 function RenderText({
   promptToRender,
   data,
