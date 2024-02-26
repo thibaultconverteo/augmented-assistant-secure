@@ -1,4 +1,3 @@
-import data from "../../../data/test.json";
 import TextRendererCard from "./textRendererCard";
 
 interface TextRendererBoxProps {
