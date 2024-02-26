@@ -5,11 +5,9 @@ interface TextRendererBoxProps {
   prompt: string;
 }
 
-let random = Math.floor(Math.random() * 2);
-
 function RenderText({ promptToRender }: { promptToRender: string }) {
   if (promptToRender) {
-    let random = Math.floor(Math.random() * 2);
+    let random = Math.floor(Math.random() * 9);
     const content = data[random].content;
     return <TextRendererCard prompt={promptToRender} data={content} />;
   }
@@ -23,7 +21,7 @@ function RenderText({ promptToRender }: { promptToRender: string }) {
 
 export default function TextRendererBox(props: TextRendererBoxProps) {
   return (
-    <div className="flex h-full flex-col items-center justify-center max-w-100%">
+    <div className="flex h-4/6 flex-col items-start justify-center max-w-100% w-full overflow-y-scroll ">
       <RenderText promptToRender={props.prompt} />
     </div>
   );

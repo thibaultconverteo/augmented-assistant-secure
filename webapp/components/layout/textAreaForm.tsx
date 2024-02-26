@@ -1,7 +1,7 @@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ArrowUpIcon } from "@radix-ui/react-icons";
-import React, { SetStateAction, useState } from "react";
+import React, { useState } from "react";
 
 interface TextAreaFormProps {
   onTextSubmit: (text: string) => void;
@@ -39,7 +39,7 @@ export default function TextAreaForm(props: TextAreaFormProps) {
   };
 
   return (
-    <div className="w-full flex justify-center ">
+    <div className="w-full flex justify-center absolute bottom-1 ">
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-[1fr_auto] gap-2 justify-center items-center w-full">
           <ResizableTextArea

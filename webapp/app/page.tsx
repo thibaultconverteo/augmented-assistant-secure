@@ -11,7 +11,7 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center p-2">
+    <div className="w-full h-full flex flex-col items-center justify-center p-2 gap-y-10 ">
       <TextRendererBox prompt={promptValue} />
       <TextAreaForm onTextSubmit={handleTextSubmit} />
     </div>
