@@ -55,17 +55,12 @@ export default function TextAreaForm(props: TextAreaFormProps) {
             handleChange={handleChange}
           />
 
-          {props.isloading ? (
-            <Button type="submit" size="icon" disabled>
-              <ArrowUpIcon className="h-5 w-5" />
-            </Button>
-          ) : (
-            <Button type="submit" size="icon">
-              <ArrowUpIcon className="h-5 w-5" />
-            </Button>
-          )}
+          <Button type="submit" size="icon" disabled={props.isloading}>
+            <ArrowUpIcon className="h-5 w-5" />
+          </Button>
         </div>
       </form>
+
       <Button
         variant="destructive"
         onClick={clearLocalStorage}
