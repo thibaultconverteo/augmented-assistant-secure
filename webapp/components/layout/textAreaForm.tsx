@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, TrashIcon } from "@radix-ui/react-icons";
 import React, { useState } from "react";
 import { ButtonLoading } from "../ui/button-loading";
+import { useWindowSize } from "react-use";
+import { twMerge } from "tailwind-merge";
 
 interface TextAreaFormProps {
   onTextSubmit: (text: string) => void;
@@ -33,6 +35,7 @@ const clearLocalStorage = () => {
 
 export default function TextAreaForm(props: TextAreaFormProps) {
   const [inputValue, setInputValue] = useState("");
+  const { width } = useWindowSize();
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(event.target.value);
@@ -45,7 +48,7 @@ export default function TextAreaForm(props: TextAreaFormProps) {
   };
 
   return (
-    <div className="w-full flex justify-center absolute bottom-1 space-x-2">
+    <div className="w-full flex justify-center space-x-2 relative bottom-1">
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-[1fr_auto] gap-2 justify-center items-center w-full">
           <ResizableTextArea
@@ -62,9 +65,14 @@ export default function TextAreaForm(props: TextAreaFormProps) {
           )}
         </div>
       </form>
-      <Button variant="destructive" onClick={clearLocalStorage}>
-        <TrashIcon className="h-5 w-5 mr-2" />
-        Delete history
+      <Button
+        variant="destructive"
+        onClick={clearLocalStorage}
+        className="h-10"
+        size={width > 767 ? "default" : "icon"}
+      >
+        <TrashIcon className={twMerge(width > 767 && "mr-2", "h-5 w-5")} />
+        {width > 767 && "Delete history "}
       </Button>
     </div>
   );
