@@ -27,7 +27,7 @@ function RenderText({
 
 export default function TextRendererBox(props: TextRendererBoxProps) {
   return (
-    <div className="flex h-[32rem] mt-0 flex-col items-start justify-start max-w-100% w-full overflow-y-auto">
+    <div className="flex h-5/6 mt-0 flex-col items-start justify-start max-w-100% w-full overflow-y-auto">
       <RenderText promptToRender={props.prompt} data={props.response} />
     </div>
   );

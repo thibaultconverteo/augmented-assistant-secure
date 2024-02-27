@@ -27,7 +27,7 @@ export default function TextRendererCard(props: TextRendererCardProps) {
   };
 
   return (
-    <div className="grid grid-cols items-start justify-center max-w-100% gap-10 h-full">
+    <div className="grid grid-cols items-start justify-center max-w-100% gap-10">
       {chatHistory.map((message, index) => (
         <TextRendererItem key={index} text={message.text} user={message.user} />
       ))}
