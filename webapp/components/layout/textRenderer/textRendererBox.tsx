@@ -14,7 +14,7 @@ function RenderText({
 }) {
   if (promptToRender) {
     return (
-      <div className="flex h-5/6 mt-0 flex-col-reverse max-w-100% w-full overflow-y-auto">
+      <div className="flex h-5/6 mt-0 flex-col-reverse items-start justify-start max-w-100% w-full overflow-y-auto">
         <TextRendererCard prompt={promptToRender} data={data} />
       </div>
     );
