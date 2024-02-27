@@ -13,7 +13,11 @@ function RenderText({
   data: string;
 }) {
   if (promptToRender) {
-    return <TextRendererCard prompt={promptToRender} data={data} />;
+    return (
+      <div className="flex h-5/6 mt-0 flex-col-reverse max-w-100% w-full overflow-y-auto">
+        <TextRendererCard prompt={promptToRender} data={data} />
+      </div>
+    );
   }
 
   return (
@@ -27,7 +31,7 @@ function RenderText({
 
 export default function TextRendererBox(props: TextRendererBoxProps) {
   return (
-    <div className="flex h-5/6 mt-0 flex-col items-start justify-start max-w-100% w-full overflow-y-auto">
+    <div className="flex h-full items-start justify-start max-w-100% w-full">
       <RenderText promptToRender={props.prompt} data={props.response} />
     </div>
   );
