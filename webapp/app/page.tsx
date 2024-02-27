@@ -11,8 +11,13 @@ export default function Home() {
 
   const handleTextSubmit = (text: string) => {
     setIsLoading(true);
+    setPromptValue(text);
+    setApiResponse("...");
+
     getData(text).then((data) => {
-      setPromptValue(text);
+      localStorage.chat_history = JSON.stringify(
+        JSON.parse(localStorage.chat_history ?? "[]").slice(0, -1)
+      );
       setApiResponse(data);
       setIsLoading(false);
     });

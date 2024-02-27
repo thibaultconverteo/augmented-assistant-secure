@@ -2,7 +2,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, TrashIcon } from "@radix-ui/react-icons";
 import React, { useState } from "react";
-import { ButtonLoading } from "../ui/button-loading";
 import { useWindowSize } from "react-use";
 import { twMerge } from "tailwind-merge";
 
@@ -57,7 +56,9 @@ export default function TextAreaForm(props: TextAreaFormProps) {
           />
 
           {props.isloading ? (
-            <ButtonLoading />
+            <Button type="submit" size="icon" disabled>
+              <ArrowUpIcon className="h-5 w-5" />
+            </Button>
           ) : (
             <Button type="submit" size="icon">
               <ArrowUpIcon className="h-5 w-5" />
