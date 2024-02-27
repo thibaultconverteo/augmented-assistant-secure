@@ -19,7 +19,7 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center p-2 gap-y-10">
+    <div className="w-full h-full flex flex-col items-center p-2 gap-y-10">
       <TextRendererBox prompt={promptValue} response={apiResponse} />
       <TextAreaForm onTextSubmit={handleTextSubmit} isloading={isloading} />
     </div>
