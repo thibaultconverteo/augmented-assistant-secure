@@ -1,6 +1,6 @@
 export async function getData(prompt: string | undefined) {
   const res = await fetch(
-    process.env.NEXT_PUBLIC_API_URL + "/processPrompt",
+    "https://augmented-chatbot-demo-4o52ykz34a-ew.a.run.app/processPrompt",
 
     {
       method: "POST",
