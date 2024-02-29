@@ -46,6 +46,11 @@ export default function TextAreaForm(props: TextAreaFormProps) {
     setInputValue("");
   };
 
+  let localStorageChatHistory;
+  if (typeof window !== "undefined") {
+    localStorageChatHistory = localStorage.chat_history || "";
+  }
+
   return (
     <div className="w-full flex justify-center items-center absolute bottom-1 space-x-2">
       <form onSubmit={handleSubmit}>
@@ -66,6 +71,7 @@ export default function TextAreaForm(props: TextAreaFormProps) {
         onClick={clearLocalStorage}
         className="h-10"
         size={width > 767 ? "default" : "icon"}
+        disabled={localStorageChatHistory ? false : true}
       >
         <TrashIcon className={twMerge(width > 767 && "mr-2", "h-5 w-5")} />
         {width > 767 && "Delete history "}
