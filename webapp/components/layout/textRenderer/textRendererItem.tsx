@@ -49,7 +49,8 @@ export default function TextRendererItem(props: TextRendererItemProps) {
       {props.response?.type === "html" ? (
         <iframe
           src={"data:text/html;charset=utf-8," + `${encodeResponse}`}
-          className="w-11/12 h-[33em] overflow-auto"
+          className="w-10/12 lg:h-[33em] md:h-[30em] sm:h-[20em]  overflow-auto"
+          id="chartIframe"
         />
       ) : (
         <div className="whitespace-pre-wrap break-words">
