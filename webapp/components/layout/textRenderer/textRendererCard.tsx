@@ -2,22 +2,21 @@ import React, { useEffect, useState } from "react";
 import TextRendererItem from "./textRendererItem";
 
 interface Message {
-  text: string;
+  text: { response: string; type: string };
   user: "chatbot" | "user";
 }
 
 interface TextRendererCardProps {
-  data: string;
-  prompt: string;
+  data: { response: string; type: string };
+  prompt: { response: string; type: string };
 }
 
 export default function TextRendererCard(props: TextRendererCardProps) {
-  // Retrieve chat history from local storage
   const [chatHistory, setChatHistory] = useState<Message[]>([]);
 
   useEffect(() => {
     fetchChatHistory();
-  }, [props.data, props.prompt]); // Fetch chat history when data or prompt changes
+  }, [props.data, props.prompt]);
 
   const fetchChatHistory = () => {
     const storedHistory = localStorage.getItem("chat_history");
@@ -29,12 +28,15 @@ export default function TextRendererCard(props: TextRendererCardProps) {
   return (
     <div className="grid grid-cols items-start justify-center max-w-100% gap-10">
       {chatHistory.map((message, index) => (
-        <TextRendererItem key={index} text={message.text} user={message.user} />
+        <TextRendererItem
+          key={index}
+          response={message.text}
+          user={message.user}
+        />
       ))}
-      <div className=" hidden">
-        <TextRendererItem text={props.prompt} user="user" />
-
-        <TextRendererItem text={props.data} user="chatbot" />
+      <div className="hidden">
+        <TextRendererItem response={props.prompt} user="user" />
+        <TextRendererItem response={props.data} user="chatbot" />
       </div>
     </div>
   );

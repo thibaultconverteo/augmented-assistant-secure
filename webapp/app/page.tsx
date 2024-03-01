@@ -5,16 +5,22 @@ import React, { useState } from "react";
 import { getData } from "@/data/data";
 
 export default function Home() {
-  const [promptValue, setPromptValue] = useState("");
-  const [apiResponse, setApiResponse] = useState("");
+  const [promptValue, setPromptValue] = useState<{
+    response: string;
+    type: string;
+  }>({ response: "", type: "" });
   const [isloading, setIsLoading] = useState(false);
+  const [apiResponse, setApiResponse] = useState<{
+    response: string;
+    type: string;
+  }>({ response: "", type: "" });
 
   const handleTextSubmit = (text: string) => {
     setIsLoading(true);
-    setPromptValue(text);
-    setApiResponse("...");
+    setPromptValue({ response: text, type: "text" });
+    setApiResponse({ response: "...", type: "text" });
 
-    getData(text).then((data) => {
+    getData(text).then((data: { response: string; type: string }) => {
       localStorage.chat_history = JSON.stringify(
         JSON.parse(localStorage.chat_history ?? "[]").slice(0, -1)
       );

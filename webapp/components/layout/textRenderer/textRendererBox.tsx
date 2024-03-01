@@ -1,18 +1,18 @@
 import TextRendererCard from "./textRendererCard";
 
 interface TextRendererBoxProps {
-  prompt: string;
-  response: string;
+  prompt: { response: string; type: string };
+  response: { response: string; type: string };
 }
 
 function RenderText({
   promptToRender,
   data,
 }: {
-  promptToRender: string;
-  data: string;
+  promptToRender: { response: string; type: string };
+  data: { response: string; type: string };
 }) {
-  if (promptToRender) {
+  if (promptToRender.response) {
     return (
       <div className="flex h-5/6 mt-0 flex-col-reverse items-start justify-start max-w-100% w-full overflow-y-auto">
         <TextRendererCard prompt={promptToRender} data={data} />

@@ -1,8 +1,7 @@
-// textRendererItem.tsx
 import React from "react";
 
 interface TextRendererItemProps {
-  text: string;
+  response: { response: string; type: string };
   user: "chatbot" | "user";
 }
 
@@ -19,34 +18,44 @@ function UserName(props: TextRendererItemProps) {
 }
 
 export default function TextRendererItem(props: TextRendererItemProps) {
-  // Save message to local storage
   React.useEffect(() => {
-    const storedMessages = JSON.parse(
-      localStorage.getItem("chat_history") || "[]"
-    );
-    const isMessageDuplicate = storedMessages.some(
-      (message: any) =>
-        message.text === props.text && message.user === props.user
-    );
-    if (!isMessageDuplicate) {
-      const updatedMessages = [
-        ...storedMessages,
-        { text: props.text, user: props.user },
-      ];
-      localStorage.setItem("chat_history", JSON.stringify(updatedMessages));
+    if (props.response?.response && props.response?.response.trim() !== "") {
+      const storedMessages = JSON.parse(
+        localStorage.getItem("chat_history") || "[]"
+      );
+      const isMessageDuplicate = storedMessages.some(
+        (message: any) =>
+          message.text.response === props.response.response &&
+          message.user === props.user
+      );
+      if (!isMessageDuplicate) {
+        const updatedMessages = [
+          ...storedMessages,
+          { text: props.response, user: props.user },
+        ];
+        localStorage.setItem("chat_history", JSON.stringify(updatedMessages));
+      }
     }
-  }, [props.text, props.user]);
+  }, [props.response, props.user]);
+
+  const encodeResponse = encodeURIComponent(props.response?.response || "");
 
   return (
-    <div className=" space-x-10">
+    <div className="space-x-10">
       <div className="flex space-x-4">
         <p>{userIcon[props.user]}</p>
         {UserName(props)}
       </div>
-      <div
-        dangerouslySetInnerHTML={{ __html: props.text }}
-        className="whitespace-pre-wrap break-words"
-      />
+      {props.response?.type === "html" ? (
+        <iframe
+          src={"data:text/html;charset=utf-8," + `${encodeResponse}`}
+          className="w-11/12 h-[33em] overflow-auto"
+        />
+      ) : (
+        <div className="whitespace-pre-wrap break-words">
+          {props.response?.response}
+        </div>
+      )}
     </div>
   );
 }
