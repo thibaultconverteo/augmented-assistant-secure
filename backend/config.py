@@ -9,15 +9,15 @@ SERVICE_ACCOUNT_EMAIL = '815180401364-compute@developer.gserviceaccount.com'
 CHUNK_SIZE = 5
 
 # Google Drive parameters
-CLIENT_ID = '111103087873-ttslctbg0queio3gtoh11tb2ttooegse.apps.googleusercontent.com'
-CLIENT_SECRET = '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'
-REFRESH_TOKEN = '1//04oolhEP8BgfjCgYIARAAGAQSNwF-L9IrhuIuE-CsvUojwCQImcONPNRR5d2BX7qqKJ2PeKbjWGCfL59vCzTHvOG3v-s4ribw0nQ'
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 
-          'https://www.googleapis.com/auth/cloud-platform', 
-          'https://www.googleapis.com/auth/drive',
-          'https://www.googleapis.com/auth/bigquery',
-          'https://www.googleapis.com/auth/cloud-vision',
-          'https://www.googleapis.com/auth/cloud-vision']
+# CLIENT_ID = ''
+# CLIENT_SECRET = ''
+# REFRESH_TOKEN = ''
+# SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 
+#           'https://www.googleapis.com/auth/cloud-platform', 
+#           'https://www.googleapis.com/auth/drive',
+#           'https://www.googleapis.com/auth/bigquery',
+#           'https://www.googleapis.com/auth/cloud-vision',
+#           'https://www.googleapis.com/auth/cloud-vision']
 
 
 PROVIDER = 'gemini'
