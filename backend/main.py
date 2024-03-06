@@ -9,13 +9,16 @@ from datetime import datetime
 from numpy import random
 
 from google.cloud import storage, logging, tasks_v2
-import vertexai
-from vertexai.preview.generative_models import GenerativeModel, Part
-from vertexai.language_models import CodeGenerationModel
+# import vertexai
+# from vertexai.preview.generative_models import GenerativeModel, Part
+# from vertexai.language_models import CodeGenerationModel
 import google.auth
 
-from mistralai.client import MistralClient
-from mistralai.models.chat_completion import ChatMessage
+# from mistralai.client import MistralClient
+# from mistralai.models.chat_completion import ChatMessage
+
+from google.cloud import dialogflowcx_v3beta1 as dialogflow
+from google.cloud.dialogflowcx_v3beta1 import types
 
 from utils import task
 from config import SERVICE_NAME, CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN, SCOPES, CHUNK_SIZE, PROVIDER, FAIL_SAFE_HTML
@@ -49,18 +52,18 @@ logger.default_resource = res
 ct_client = tasks_v2.CloudTasksClient()
 
 # storage client
-gs_client = storage.Client()
-creds_bucket_name = 'c-robert-sandbox-credentials'
-creds_blob_name = 'token_mistralai.json'
-creds_bucket = gs_client.get_bucket(creds_bucket_name)
-creds_blob = creds_bucket.get_blob(creds_blob_name)
-creds_json_str = creds_blob.download_as_string().decode()
-creds_json = json.loads(creds_json_str)
-MISTRAL_API_KEY = creds_json['MISTRAL_API_KEY']
+# gs_client = storage.Client()
+# creds_bucket_name = 'c-robert-sandbox-credentials'
+# creds_blob_name = 'token_mistralai.json'
+# creds_bucket = gs_client.get_bucket(creds_bucket_name)
+# creds_blob = creds_bucket.get_blob(creds_blob_name)
+# creds_json_str = creds_blob.download_as_string().decode()
+# creds_json = json.loads(creds_json_str)
+# MISTRAL_API_KEY = creds_json['MISTRAL_API_KEY']
 
-mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
+# mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
 
-vertexai.init(project=project_id, location="us-central1", credentials=creds)
+# vertexai.init(project=project_id, location="us-central1", credentials=creds)
     
 
 
@@ -81,77 +84,6 @@ def process_prompt():
         prompt = "just write something funny, but appropriate"
 
     
-    provider = params.get('provider')
-    if provider == '' or provider is None:
-        logger.log_text(f"could not retrieve provider from payload, defaulting to {PROVIDER}", severity='INFO')
-        provider = PROVIDER
-
-    
-    # evaluate whether output should be text or HTML
-    model = GenerativeModel("gemini-pro")
-    response_type_prompt = f"""based on the user prompt below, tell whether you think the user wants a simple text answer or expects an HTML code ? 
-        {prompt}
-        answer simply with 'txt' or 'html'"""
-    responses = model.generate_content(response_type_prompt,
-        generation_config={
-            "max_output_tokens": 2048,
-            "temperature": 0.1,
-            "top_p": 1
-        },
-        safety_settings=[],
-    stream=True,
-    )
-    response_type = '\n'.join([response.text for response in responses])
-    logger.log_text(f'response type {response_type}')
-    
-    if response_type == 'html':
-        prompt = f'{prompt}\nanswer with an html code that can be directly displayed in a browser'
-    logger.log_text(f'prompt \n{prompt}', severity='INFO')
-    content = None
-    if provider == 'gemini':
-        model = GenerativeModel("gemini-1.0-pro-001")
-        responses = model.generate_content(prompt,
-            generation_config={
-                "max_output_tokens": 2048,
-                "temperature": 0.1,
-                "top_p": 1
-            },
-            safety_settings=[],
-        stream=True,
-        )
-        
-        try:
-            content = '\n'.join([response.text for response in responses])
-        except:
-            logger.log_text('ran into an error with gemini response switching to bison code', severity='INFO')
-            # logger.log_text(response, severity='INFO')
-            parameters = {
-                "candidate_count": 1,
-                "max_output_tokens": 2048,
-                "temperature": 0.1
-            }
-            model = CodeGenerationModel.from_pretrained("code-bison")
-            response = model.predict(
-                prompt,
-                **parameters
-            )
-            content = response.text
-    elif provider == 'mistral':
-        messages = [ChatMessage(role="user", content=prompt)]
-        model = 'tiny'
-        chat_response = mistral_client.chat(model=model, messages=messages)
-        content = chat_response.choices[0].message.content
-
-    logger.log_text(f'initial LLM response:\n{content}')
-    
-    if content is None:
-        content = "something went wrong, check logs"
-    elif response_type == 'html':
-        re_match = re.match(r'.*?(<html>.*</html>)', content, flags=re.S)
-        if re_match is not None:
-            content = re_match.groups()[0]
-        else:
-            content = FAIL_SAFE_HTML
     logger.log_text(content)
     return {'type':response_type, 'response':content}
 
