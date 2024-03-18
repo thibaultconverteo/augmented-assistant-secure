@@ -1,9 +1,14 @@
 SERVICE_NAME = 'augmented-chatbot-demo'
 BASE_URL = 'https://augmented-chatbot-demo-4o52ykz34a-ew.a.run.app'
 SERVICE_ACCOUNT_EMAIL = '815180401364-compute@developer.gserviceaccount.com'
+
+LOGS_BUCKET_NAME = 'c-augmented-chatbot-dialogflow-logs'
+LOGS_BLOB_PREFIX = 'v1/'
 # BUCKET_NAME = 'c-robert-sandbox-drive-content'
 # US_BUCKET_NAME = 'c-robert-sandbox-drive-content-us'
 
+
+AGENT_ID = '224cf05f-f4e5-44d8-8efc-dcd1005cc85e'
 # Maximum number of pages processed by cloud vision API
 # https://cloud.google.com/python/docs/reference/vision/latest/google.cloud.vision_v1.services.image_annotator.ImageAnnotatorClient#google_cloud_vision_v1_services_image_annotator_ImageAnnotatorClient_batch_annotate_files
 CHUNK_SIZE = 5
@@ -12,16 +17,10 @@ CHUNK_SIZE = 5
 # CLIENT_ID = ''
 # CLIENT_SECRET = ''
 # REFRESH_TOKEN = ''
-# SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 
-#           'https://www.googleapis.com/auth/cloud-platform', 
-#           'https://www.googleapis.com/auth/drive',
-#           'https://www.googleapis.com/auth/bigquery',
-#           'https://www.googleapis.com/auth/cloud-vision',
-#           'https://www.googleapis.com/auth/cloud-vision']
-
-
+SCOPES = ["https://www.googleapis.com/auth/cloud-platform",
+          "https://www.googleapis.com/auth/dialogflow"]
 PROVIDER = 'gemini'
-
+LOCATION = 'us-central1'
 FAIL_SAFE_HTML = """<!DOCTYPE html>
 <html>
 <head>

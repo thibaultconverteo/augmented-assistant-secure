@@ -4,7 +4,7 @@ import flask
 import httplib2
 from urllib.parse import quote
 
-import os, json, re, time
+import os, json, re, time, uuid
 from datetime import datetime
 from numpy import random
 
@@ -21,7 +21,7 @@ from google.cloud import dialogflowcx_v3beta1 as dialogflow
 from google.cloud.dialogflowcx_v3beta1 import types
 
 from utils import task
-from config import SERVICE_NAME, CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN, SCOPES, CHUNK_SIZE, PROVIDER, FAIL_SAFE_HTML
+from config import SERVICE_NAME, LOCATION, PROVIDER, FAIL_SAFE_HTML, SCOPES, LOGS_BUCKET_NAME, LOGS_BLOB_PREFIX, AGENT_ID
 
 app = Flask(__name__)
 CORS(app)
@@ -70,6 +70,7 @@ ct_client = tasks_v2.CloudTasksClient()
 @app.route("/processPrompt", methods=['GET', 'POST'])
 def process_prompt():
     params = dict(flask.request.args)
+    
     data = flask.request.data.decode()
     logger.log_text('payload type %s'%type(data))
     logger.log_text(data)
@@ -83,9 +84,71 @@ def process_prompt():
         logger.log_text("could not retrieve prompt from payload, defaulting to returning a joke", severity='INFO')
         prompt = "just write something funny, but appropriate"
 
+    session_id = data_dict.get('sessionId')
+    logger.log_text(f"retrieved session id {session_id} from payload", severity='INFO')
+    if session_id == '' or session_id is None:
+        session_id = uuid.uuid4()
+    logger.log_text(f"session id {session_id}", severity='INFO')
+
     
+
+    if LOCATION != 'global':
+        api_endpoint = f"{LOCATION}-dialogflow.googleapis.com"
+    else:
+        api_endpoint = "dialogflow.googleapis.com"
+    client_options = {"api_endpoint": api_endpoint}
+
+    session_client = dialogflow.SessionsClient(credentials=creds, client_options=client_options)
+    
+    session_path = session_client.session_path(project_id, LOCATION, AGENT_ID, session_id)
+
+    language_code = 'en'
+    text_input = types.TextInput(text=prompt)
+    query_input = types.QueryInput(text=text_input, language_code=language_code)
+    request = types.DetectIntentRequest(
+        session=session_path, query_input=query_input
+    )
+    logger.log_text('detecting intent with chatbot')
+    response = session_client.detect_intent(request=request)
+    logger.log_text('response received')
+    content_list = list()
+    for response_message in response.query_result.response_messages:
+        if hasattr(response_message, 'text'):
+            content_line = response_message.text.text[0]
+            logger.log_text(content_line)
+            content_list.append(content_line)
+            
+    params_dict = dict(response.query_result.parameters)
+    for key, value in params_dict.items():
+        logger.log_text(f'{key}:\n{value}\n')
+    response_type = params_dict['$request.generative.response-type']
+    
+    content = '\n'.join(content_list)
     logger.log_text(content)
-    return {'type':response_type, 'response':content}
+    if content == '':
+        content = f'Apologies, I tried the following query but it returned no result'
+
+    # log results to cloud storage for analytics
+    log_ts = datetime.now().strftime('%Y%m%d %H%M%S')
+    logs_params_dict = dict()
+    for key, value in params_dict.items():
+        key = key.replace('$', '').replace('.', '_').replace('-', '_')
+        logs_params_dict[key] = value
+    log_dict ={
+        'timestamp':log_ts, 
+        'user_prompt': response.query_result.text, 
+        'response': content, 
+        'params':logs_params_dict, 
+        'sessionId': str(session_id),
+        'agent': AGENT_ID
+        }
+
+    gs_client = storage.Client()
+    logs_bucket = gs_client.get_bucket(LOGS_BUCKET_NAME)
+    log_blob = logs_bucket.blob(f'{LOGS_BLOB_PREFIX}{AGENT_ID}_{log_ts}.json') 
+    log_blob.upload_from_string(json.dumps(log_dict))
+
+    return {'type':response_type, 'response':content, 'sessionId': session_id}
 
 
 
