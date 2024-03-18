@@ -1,5 +1,4 @@
-//Waiting API to have sessionId parameter in the response
-// let sessionId = "";
+let sessionId = "";
 
 export async function getData(prompt: string | undefined) {
   const chatHistory = localStorage.getItem("chat_history");
@@ -17,8 +16,7 @@ export async function getData(prompt: string | undefined) {
     );
 
     const data = await res.json();
-    //Waiting API to have sessionId parameter in the response
-    // sessionId = data.sessionId ;
+    sessionId = data.sessionId;
 
     return data;
   }
@@ -30,17 +28,15 @@ export async function getData(prompt: string | undefined) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        //Waiting API to have sessionId parameter in the response
-        // "session-id": "sessionId
+        sessionId: "sessionId",
       },
       body: JSON.stringify({ prompt: prompt?.toLowerCase() }),
     }
   );
 
   const data = await res.json();
-  //Waiting API to have sessionId parameter in the response
-  // const key = "sessionId";
-  // delete data[key];
+  const key = "sessionId";
+  delete data[key];
 
   return data;
 }
