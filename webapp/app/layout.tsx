@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/ui/mode-toggle";
-import LorealSvg from "@/components/svg/loreal-logo-svg";
+import ConverteoSvg from "@/components/svg/converteo-logo-svg";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,7 +28,7 @@ export default function RootLayout({
         >
           <div className="h-full flex w-screen">
             <div className="bg-gray-300 dark:bg-black flex justify-center p-5 h-full top-0 left-0 w-1/6">
-              <LorealSvg className="dark:fill-white" />
+              <ConverteoSvg className="dark:fill-white" />
             </div>
             <div className="flex-1 p-5">
               <div className="relative flex h-full max-w-full flex-1 flex-col overflow-hidden">
