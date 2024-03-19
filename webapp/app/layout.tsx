@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import ConverteoSvg from "@/components/svg/converteo-logo-svg";
+import SelectAiModel from "@/components/ui/select-ai-model";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -38,6 +39,10 @@ export default function RootLayout({
                       <h1 className="lg:text-2xl sm:text-xl font-semibold text-gray-700 dark:text-white">
                         Augmented Chatbot
                       </h1>
+                    </div>
+
+                    <div className="absolute lg:left-10 left-1 items-center">
+                      <SelectAiModel />
                     </div>
 
                     <div className="absolute lg:right-10 right-0 items-center">
