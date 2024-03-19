@@ -1,9 +1,12 @@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ArrowUpIcon, TrashIcon } from "@radix-ui/react-icons";
+import { ButtonLoading } from "@/components/ui/button-loading";
+
+import { ArrowUpIcon } from "@radix-ui/react-icons";
 import React, { useState } from "react";
 import { useWindowSize } from "react-use";
 import { twMerge } from "tailwind-merge";
+import ButtonDelete from "@/components/ui/button-delete";
 
 interface TextAreaFormProps {
   onTextSubmit: (text: string) => void;
@@ -26,10 +29,6 @@ const ResizableTextArea: React.FC<{
       }}
     ></Textarea>
   );
-};
-
-const clearLocalStorage = () => {
-  localStorage.removeItem("chat_history");
 };
 
 export default function TextAreaForm(props: TextAreaFormProps) {
@@ -60,21 +59,20 @@ export default function TextAreaForm(props: TextAreaFormProps) {
             handleChange={handleChange}
           />
 
-          <Button type="submit" size="icon" disabled={props.isloading}>
-            <ArrowUpIcon className="h-5 w-5" />
-          </Button>
+          {props.isloading ? (
+            <ButtonLoading />
+          ) : (
+            <Button type="submit" size={width > 767 ? "default" : "icon"}>
+              <ArrowUpIcon
+                className={twMerge(width > 767 && "mr-2", "h-5 w-5")}
+              />
+              {width > 767 && "Send message"}
+            </Button>
+          )}
         </div>
       </form>
 
-      <Button
-        variant="destructive"
-        onClick={clearLocalStorage}
-        className="h-10"
-        size={width > 767 ? "default" : "icon"}
-      >
-        <TrashIcon className={twMerge(width > 767 && "mr-2", "h-5 w-5")} />
-        {width > 767 && "Delete history "}
-      </Button>
+      <ButtonDelete />
     </div>
   );
 }
