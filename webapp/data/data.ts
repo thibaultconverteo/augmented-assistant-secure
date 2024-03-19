@@ -1,6 +1,7 @@
 let session_id = "";
 const url =
   "https://augmented-chatbot-demo-4o52ykz34a-ew.a.run.app/processPrompt";
+const key = "sessionId";
 
 export async function getData(prompt: string | undefined) {
   const chatHistory = localStorage.getItem("chat_history");
@@ -20,6 +21,8 @@ export async function getData(prompt: string | undefined) {
     const data = await res.json();
     session_id = data.sessionId;
 
+    delete data[key];
+
     return data;
   }
 
@@ -37,8 +40,6 @@ export async function getData(prompt: string | undefined) {
   );
 
   const data = await res.json();
-
-  const key = "sessionId";
 
   delete data[key];
 
