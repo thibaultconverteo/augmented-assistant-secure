@@ -1,4 +1,4 @@
-let sessionId = "";
+let session_id = "";
 const url =
   "https://augmented-chatbot-demo-4o52ykz34a-ew.a.run.app/processPrompt";
 
@@ -18,7 +18,7 @@ export async function getData(prompt: string | undefined) {
     );
 
     const data = await res.json();
-    sessionId = data.sessionId;
+    session_id = data.sessionId;
 
     return data;
   }
@@ -30,13 +30,14 @@ export async function getData(prompt: string | undefined) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        sessionId: "sessionId",
+        sessionId: session_id,
       },
       body: JSON.stringify({ prompt: prompt?.toLowerCase() }),
     }
   );
 
   const data = await res.json();
+
   const key = "sessionId";
 
   delete data[key];
