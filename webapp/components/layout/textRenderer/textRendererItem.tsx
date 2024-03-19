@@ -25,13 +25,13 @@ export default function TextRendererItem(props: TextRendererItemProps) {
       );
       const isMessageDuplicate = storedMessages.some(
         (message: any) =>
-          message.data.response === props.response.response &&
+          message.text.response === props.response.response &&
           message.user === props.user
       );
       if (!isMessageDuplicate) {
         const updatedMessages = [
           ...storedMessages,
-          { data: props.response, user: props.user },
+          { text: props.response, user: props.user },
         ];
         localStorage.setItem("chat_history", JSON.stringify(updatedMessages));
       }

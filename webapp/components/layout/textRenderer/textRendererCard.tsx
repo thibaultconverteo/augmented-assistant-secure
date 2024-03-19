@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import TextRendererItem from "./textRendererItem";
 
 interface Message {
-  data: { response: string; type: string };
+  text: { response: string; type: string };
   user: "chatbot" | "user";
 }
 
@@ -30,7 +30,7 @@ export default function TextRendererCard(props: TextRendererCardProps) {
       {chatHistory.map((message, index) => (
         <TextRendererItem
           key={index}
-          response={message.data}
+          response={message.text}
           user={message.user}
         />
       ))}
