@@ -27,7 +27,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <div className="h-full flex w-screen">
-            <div className="bg-gray-300 dark:bg-black flex justify-center p-5 h-full top-0 left-0 w-1/6">
+            <div className="bg-gray-300 dark:bg-gray-950 flex justify-center p-5 h-full top-0 left-0 w-1/6">
               <ConverteoSvg className="dark:fill-white" />
             </div>
             <div className="flex-1 p-5">
