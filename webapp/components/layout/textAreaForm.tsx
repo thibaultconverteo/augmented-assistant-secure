@@ -16,11 +16,13 @@ interface TextAreaFormProps {
 const ResizableTextArea: React.FC<{
   inputValue: string;
   handleChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
-}> = ({ inputValue, handleChange }) => {
+  handleKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+}> = ({ inputValue, handleChange, handleKeyDown }) => {
   return (
     <Textarea
       value={inputValue}
       onChange={handleChange}
+      onKeyDown={handleKeyDown}
       placeholder="Type something..."
       className="flex min-h-10 max-h-96 w-full resize-none md:w-[400px] lg:w-[500px] xl:w-[600px] 2xl:w-[700px] "
       style={{
@@ -50,6 +52,16 @@ export default function TextAreaForm(props: TextAreaFormProps) {
     }
   }
 
+  const handleTextareaKeyDown = (
+    event: React.KeyboardEvent<HTMLTextAreaElement>
+  ) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      const formEvent = new Event("submit", { bubbles: true });
+      event.currentTarget.form?.dispatchEvent(formEvent);
+    }
+  };
+
   return (
     <div className="w-full flex justify-center items-center absolute bottom-1 space-x-2">
       <form onSubmit={handleSubmit}>
@@ -57,6 +69,7 @@ export default function TextAreaForm(props: TextAreaFormProps) {
           <ResizableTextArea
             inputValue={inputValue}
             handleChange={handleChange}
+            handleKeyDown={handleTextareaKeyDown}
           />
 
           {props.isloading ? (

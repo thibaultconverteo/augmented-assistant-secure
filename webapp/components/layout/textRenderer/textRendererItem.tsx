@@ -1,4 +1,5 @@
 import React from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface TextRendererItemProps {
   response: { response: string; type: string };
@@ -52,6 +53,15 @@ export default function TextRendererItem(props: TextRendererItemProps) {
           className="w-10/12 lg:h-[33em] md:h-[30em] sm:h-[20em]  overflow-auto"
           id="chartIframe"
         />
+      ) : props.response?.response === "..." ? (
+        <div className="flex items-center space-x-4">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[400px] bg-gray-200 dark:bg-zinc-700" />
+            <Skeleton className="h-4 w-[400px] bg-gray-200 dark:bg-zinc-700" />
+            <Skeleton className="h-4 w-[400px] bg-gray-200 dark:bg-zinc-700" />
+            <Skeleton className="h-4 w-[250px] bg-gray-200 dark:bg-zinc-700" />
+          </div>
+        </div>
       ) : (
         <div className="whitespace-pre-wrap break-words">
           {props.response?.response}
