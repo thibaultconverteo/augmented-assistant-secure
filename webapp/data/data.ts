@@ -3,7 +3,7 @@ const url =
   "https://augmented-chatbot-demo-4o52ykz34a-ew.a.run.app/processPrompt";
 
 export async function getData(prompt: string | undefined) {
-  const chatHistory = localStorage.getItem("chat_history");
+  const chatHistory = sessionStorage.getItem("chat_history");
   if (chatHistory === null) {
     const res = await fetch(
       url,

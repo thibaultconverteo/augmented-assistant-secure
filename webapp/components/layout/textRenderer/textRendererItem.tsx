@@ -22,7 +22,7 @@ export default function TextRendererItem(props: TextRendererItemProps) {
   React.useEffect(() => {
     if (props.response?.response && props.response?.response.trim() !== "") {
       const storedMessages = JSON.parse(
-        localStorage.getItem("chat_history") || "[]"
+        sessionStorage.getItem("chat_history") || "[]"
       );
       const isMessageDuplicate = storedMessages.some(
         (message: any) =>
@@ -34,7 +34,7 @@ export default function TextRendererItem(props: TextRendererItemProps) {
           ...storedMessages,
           { text: props.response, user: props.user },
         ];
-        localStorage.setItem("chat_history", JSON.stringify(updatedMessages));
+        sessionStorage.setItem("chat_history", JSON.stringify(updatedMessages));
       }
     }
   }, [props.response, props.user]);
