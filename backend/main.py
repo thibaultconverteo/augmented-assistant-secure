@@ -79,8 +79,11 @@ def process_prompt():
     
     headers_dict = dict(flask.request.headers)
     logger.log_text(f'request headers {json.dumps(headers_dict)}')
-    session_id = headers_dict.get('Session-Id')
+    session_id = headers_dict.get('Sessionid')
+    logger.log_text(f"session id {session_id}", severity='INFO')
+    logger.log_text(f"session id {type(session_id)}", severity='INFO')
     if session_id == '' or session_id is None:
+        logger.log_text(f"could not retrieve session id from header, intializating one", severity='INFO')
         session_id = uuid.uuid4()
     logger.log_text(f"session id {session_id}", severity='INFO')
 
