@@ -5,8 +5,8 @@ import React, { useState, useEffect } from "react";
 export default function ButtonDelete() {
   const [notChatHistory, setNotChatHistory] = useState(Boolean);
 
-  const clearLocalStorage = () => {
-    localStorage.removeItem("chat_history");
+  const clearSessionStorage = () => {
+    sessionStorage.removeItem("chat_history");
     setNotChatHistory(true);
   };
 
@@ -14,13 +14,13 @@ export default function ButtonDelete() {
     // Check if 'chat_history' exists in local storage
     const checkChatHistory = () => {
       // Check if 'chat_history' exists in local storage
-      const hasChatHistory = localStorage.getItem("chat_history") !== null;
+      const hasChatHistory = sessionStorage.getItem("chat_history") !== null;
       setNotChatHistory(!hasChatHistory);
     };
     // Check on mount
     checkChatHistory();
 
-    // Check when localStorage changes
+    // Check when sessionStorage changes
     window.addEventListener("storage", checkChatHistory);
 
     // Clean up event listener
@@ -29,7 +29,7 @@ export default function ButtonDelete() {
   return (
     <Button
       variant="destructive"
-      onClick={clearLocalStorage}
+      onClick={clearSessionStorage}
       size="icon"
       disabled={notChatHistory}
     >

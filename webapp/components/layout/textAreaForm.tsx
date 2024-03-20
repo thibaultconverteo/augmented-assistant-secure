@@ -48,7 +48,7 @@ export default function TextAreaForm(props: TextAreaFormProps) {
   };
 
   if (typeof window !== "undefined") {
-    if (localStorage.chat_history) {
+    if (sessionStorage.chat_history) {
     }
   }
 
