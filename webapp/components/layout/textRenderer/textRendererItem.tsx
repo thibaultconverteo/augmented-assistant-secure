@@ -1,5 +1,6 @@
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import TextRendererItemIframe from "./textRendererItemIframe";
 
 interface TextRendererItemProps {
   response: { response: string; type: string };
@@ -39,8 +40,6 @@ export default function TextRendererItem(props: TextRendererItemProps) {
     }
   }, [props.response, props.user]);
 
-  const encodeResponse = encodeURIComponent(props.response?.response || "");
-
   return (
     <div className="space-x-10">
       <div className="flex space-x-4">
@@ -48,11 +47,7 @@ export default function TextRendererItem(props: TextRendererItemProps) {
         {UserName(props)}
       </div>
       {props.response?.type === "html" ? (
-        <iframe
-          src={"data:text/html;charset=utf-8," + `${encodeResponse}`}
-          className="w-10/12 lg:h-[33em] md:h-[30em] sm:h-[20em]  overflow-auto"
-          id="chartIframe"
-        />
+        <TextRendererItemIframe source={props.response?.response} />
       ) : props.response?.response === "..." ? (
         <div className="flex items-center space-x-4">
           <div className="space-y-2">
