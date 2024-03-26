@@ -69,11 +69,27 @@ ct_client = tasks_v2.CloudTasksClient()
 
 @app.route("/processPrompt", methods=['GET', 'POST'])
 def process_prompt():
+    
+    
     params = dict(flask.request.args)
-    logger.log_struct(params)
+    logger.log_text(f'request params {json.dumps(params)}')
+    
+    # session_id = params.get('sessionId')
+    # logger.log_text(f"retrieved session id {session_id} from payload", severity='INFO')
+    
+    headers_dict = dict(flask.request.headers)
+    logger.log_text(f'request headers {json.dumps(headers_dict)}')
+    session_id = headers_dict.get('Sessionid')
+    logger.log_text(f"session id {session_id}", severity='INFO')
+    logger.log_text(f"session id {type(session_id)}", severity='INFO')
+    if session_id == '' or session_id is None:
+        logger.log_text(f"could not retrieve session id from header, intializating one", severity='INFO')
+        session_id = uuid.uuid4()
+    logger.log_text(f"session id {session_id}", severity='INFO')
+
 
     data = flask.request.data.decode()
-    logger.log_text(data)
+    logger.log_text(f'payload\n{data}')
     if data == '':
         logger.log_text("could not retrieve prompt from payload, defaulting to returning a joke", severity='INFO')
         data = json.dumps({"prompt" : "just write something funny, but appropriate", "response_type" : "txt"})
@@ -84,13 +100,7 @@ def process_prompt():
         logger.log_text("could not retrieve prompt from payload, defaulting to returning a joke", severity='INFO')
         prompt = "just write something funny, but appropriate"
 
-    # session_id = data_dict.get('sessionId')
-    session_id = params.get('sessionId')
-    logger.log_text(f"retrieved session id {session_id} from payload", severity='INFO')
-    if session_id == '' or session_id is None:
-        session_id = uuid.uuid4()
-    logger.log_text(f"session id {session_id}", severity='INFO')
-
+    
     
 
     if LOCATION != 'global':

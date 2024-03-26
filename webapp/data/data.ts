@@ -4,7 +4,7 @@ const url =
 const key = "sessionId";
 
 export async function getData(prompt: string | undefined) {
-  const chatHistory = localStorage.getItem("chat_history");
+  const chatHistory = sessionStorage.getItem("chat_history");
   if (chatHistory === null) {
     const res = await fetch(
       url,
