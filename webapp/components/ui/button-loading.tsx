@@ -8,7 +8,7 @@ export function ButtonLoading() {
   const { width } = useWindowSize();
 
   return (
-    <Button disabled>
+    <Button size={width > 767 ? "default" : "icon"} disabled>
       <ReloadIcon
         className={twMerge(width > 767 && "mr-2", "h-5 w-5 animate-spin")}
       />
