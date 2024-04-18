@@ -2,7 +2,7 @@ let session_id = "";
 const url = {
   general:
     "https://augmented-chatbot-demo-4o52ykz34a-ew.a.run.app/processPrompt",
-  ga: "",
+  ga: "https://augmented-chatbot-demo-anonimized-4o52ykz34a-ew.a.run.app/processPrompt",
 };
 const key = "sessionId";
 
