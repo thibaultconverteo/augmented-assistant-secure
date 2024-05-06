@@ -10,7 +10,6 @@ const logger = winston.createLogger({
   level: "info",
   format: winston.format.simple(),
   transports: [
-    new winston.transports.Console(), // Transport pour la console en mode local
     LoggingWinston
       ? new LoggingWinston({
           logName: "augmented-chatbot-webapp",
