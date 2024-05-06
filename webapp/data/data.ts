@@ -16,6 +16,10 @@ export async function getData(
 ) {
   const cleanedAiModel = ai_model?.replace(/['"]+/g, "");
   const selectedUrl = url[cleanedAiModel as keyof typeof url];
+  logger.info(`user prompt: ${prompt}`);
+  if (session_id !== "") {
+    logger.info(`session id: ${session_id}`);
+  }
 
   if (chatHistory === null) {
     const getFirstApiResponseStart = Date.now();
@@ -32,7 +36,7 @@ export async function getData(
     const getFirstApiResponseEnd = Date.now();
     const getFirstApiResponse =
       getFirstApiResponseEnd - getFirstApiResponseStart;
-    logger.info(`get first api response time: ${getFirstApiResponse}ms`);
+    logger.info(`first api response time: ${getFirstApiResponse}ms`);
 
     session_id = data.sessionId;
 
@@ -54,7 +58,7 @@ export async function getData(
   const data = await res.json();
   const getApiResponseEnd = Date.now();
   const getApiResponse = getApiResponseEnd - getApiResponseStart;
-  logger.info(`get api response time: ${getApiResponse}ms`);
+  logger.info(`api response time: ${getApiResponse}ms`);
 
   delete data[key];
 
