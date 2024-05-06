@@ -22,6 +22,7 @@ from google.cloud.dialogflowcx_v3beta1 import types
 
 from utils import task
 from config import SERVICE_NAME, LOCATION, PROVIDER, FAIL_SAFE_HTML, SCOPES, LOGS_BUCKET_NAME, LOGS_BLOB_PREFIX, AGENT_ID
+from config import NO_DATA_HTML
 
 app = Flask(__name__)
 CORS(app)
@@ -51,20 +52,6 @@ logger.default_resource = res
 # cloud tasks client
 ct_client = tasks_v2.CloudTasksClient()
 
-# storage client
-# gs_client = storage.Client()
-# creds_bucket_name = 'c-robert-sandbox-credentials'
-# creds_blob_name = 'token_mistralai.json'
-# creds_bucket = gs_client.get_bucket(creds_bucket_name)
-# creds_blob = creds_bucket.get_blob(creds_blob_name)
-# creds_json_str = creds_blob.download_as_string().decode()
-# creds_json = json.loads(creds_json_str)
-# MISTRAL_API_KEY = creds_json['MISTRAL_API_KEY']
-
-# mistral_client = MistralClient(api_key=MISTRAL_API_KEY)
-
-# vertexai.init(project=project_id, location="us-central1", credentials=creds)
-    
 
 
 @app.route("/processPrompt", methods=['GET', 'POST'])
@@ -122,22 +109,32 @@ def process_prompt():
     logger.log_text('detecting intent with chatbot')
     response = session_client.detect_intent(request=request)
     logger.log_text('response received')
-    content_list = list()
-    for response_message in response.query_result.response_messages:
-        if hasattr(response_message, 'text'):
-            content_line = response_message.text.text[0]
-            logger.log_text(content_line)
-            content_list.append(content_line)
+    # content_list = list()
+    # for response_message in response.query_result.response_messages:
+    #     if hasattr(response_message, 'text'):
+    #         content_line = response_message.text.text[0]
+    #         logger.log_text(content_line)
+    #         content_list.append(content_line)
             
+    logger.log_text(str(response))
     params_dict = dict(response.query_result.parameters)
+    # params_dict = dict(response.parameters)
+    logger.log_struct(params_dict)
     for key, value in params_dict.items():
         logger.log_text(f'{key}:\n{value}\n')
-    response_type = params_dict['$request.generative.response-type']
+    # response_type = params_dict['$request.generative.response-type']
+    response_type = 'html'
     
-    content = '\n'.join(content_list)
-    logger.log_text(content)
-    if content == '':
-        content = f'Apologies, I tried the following query but it returned no result'
+    if 'success' in params_dict and params_dict['success'] == False:
+        chat_response = NO_DATA_HTML
+        logger.log_text('overriding agent response with fail safe HTML')
+    else:
+        chat_response = params_dict['output']
+    
+    # content = '\n'.join(content_list)
+    # logger.log_text(content)
+    # if content == '':
+    #     content = f'Apologies, I tried the following query but it returned no result'
 
     # log results to cloud storage for analytics
     log_ts = datetime.now().strftime('%Y%m%d %H%M%S')
@@ -148,7 +145,7 @@ def process_prompt():
     log_dict ={
         'timestamp':log_ts, 
         'user_prompt': response.query_result.text, 
-        'response': content, 
+        'response': chat_response, 
         'params':logs_params_dict, 
         'sessionId': str(session_id),
         'agent': AGENT_ID
@@ -159,7 +156,7 @@ def process_prompt():
     log_blob = logs_bucket.blob(f'{LOGS_BLOB_PREFIX}{AGENT_ID}_{log_ts}.json') 
     log_blob.upload_from_string(json.dumps(log_dict))
 
-    return {'type':response_type.strip(), 'response':content, 'sessionId': session_id}
+    return {'type':response_type, 'response':chat_response, 'sessionId': session_id}
 
 
 
