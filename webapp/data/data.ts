@@ -1,3 +1,6 @@
+"use server";
+import logger from "@/lib/logger";
+
 let session_id = "";
 const url = {
   general:
@@ -6,14 +9,21 @@ const url = {
 };
 const key = "sessionId";
 
-export async function getData(prompt: string | undefined) {
-  const chatHistory = sessionStorage.getItem("chat_history");
-  const ai_model = sessionStorage.getItem("ai_model");
+export async function getData(
+  prompt: string | undefined,
+  chatHistory: string | null,
+  ai_model: string | null
+) {
   const cleanedAiModel = ai_model?.replace(/['"]+/g, "");
-
   const selectedUrl = url[cleanedAiModel as keyof typeof url];
+  logger.info(`user prompt: ${prompt}`);
+  if (session_id !== "") {
+    logger.info(`session id: ${session_id}`);
+  }
 
   if (chatHistory === null) {
+    const getFirstApiResponseStart = Date.now();
+
     const res = await fetch(selectedUrl, {
       method: "POST",
       headers: {
@@ -23,6 +33,11 @@ export async function getData(prompt: string | undefined) {
     });
 
     const data = await res.json();
+    const getFirstApiResponseEnd = Date.now();
+    const getFirstApiResponse =
+      getFirstApiResponseEnd - getFirstApiResponseStart;
+    logger.info(`first api response time: ${getFirstApiResponse}ms`);
+
     session_id = data.sessionId;
 
     delete data[key];
@@ -30,6 +45,7 @@ export async function getData(prompt: string | undefined) {
     return data;
   }
 
+  const getApiResponseStart = Date.now();
   const res = await fetch(selectedUrl, {
     method: "POST",
     headers: {
@@ -40,6 +56,9 @@ export async function getData(prompt: string | undefined) {
   });
 
   const data = await res.json();
+  const getApiResponseEnd = Date.now();
+  const getApiResponse = getApiResponseEnd - getApiResponseStart;
+  logger.info(`api response time: ${getApiResponse}ms`);
 
   delete data[key];
 
