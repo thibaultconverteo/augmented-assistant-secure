@@ -6,7 +6,6 @@ import { ArrowUpIcon } from "@radix-ui/react-icons";
 import React, { useState } from "react";
 import { useWindowSize } from "react-use";
 import { twMerge } from "tailwind-merge";
-import ButtonDelete from "@/components/ui/button-delete";
 
 interface TextAreaFormProps {
   onTextSubmit: (text: string) => void;
@@ -48,7 +47,7 @@ export default function TextAreaForm(props: TextAreaFormProps) {
   };
 
   if (typeof window !== "undefined") {
-    if (localStorage.chat_history) {
+    if (sessionStorage.chat_history) {
     }
   }
 
@@ -84,8 +83,6 @@ export default function TextAreaForm(props: TextAreaFormProps) {
           )}
         </div>
       </form>
-
-      <ButtonDelete />
     </div>
   );
 }

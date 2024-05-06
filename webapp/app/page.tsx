@@ -21,8 +21,8 @@ export default function Home() {
     setApiResponse({ response: "...", type: "text" });
 
     getData(text).then((data: { response: string; type: string }) => {
-      localStorage.chat_history = JSON.stringify(
-        JSON.parse(localStorage.chat_history ?? "[]").slice(0, -1)
+      sessionStorage.chat_history = JSON.stringify(
+        JSON.parse(sessionStorage.chat_history ?? "[]").slice(0, -1)
       );
       setApiResponse(data);
       setIsLoading(false);

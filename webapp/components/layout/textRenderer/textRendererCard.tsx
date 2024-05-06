@@ -19,7 +19,7 @@ export default function TextRendererCard(props: TextRendererCardProps) {
   }, [props.data, props.prompt]);
 
   const fetchChatHistory = () => {
-    const storedHistory = localStorage.getItem("chat_history");
+    const storedHistory = sessionStorage.getItem("chat_history");
     if (storedHistory) {
       setChatHistory(JSON.parse(storedHistory));
     }
