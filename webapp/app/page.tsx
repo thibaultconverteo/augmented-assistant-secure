@@ -1,9 +1,8 @@
 "use client";
 import TextAreaForm from "@/components/layout/textAreaForm";
 import TextRendererBox from "@/components/layout/textRenderer/textRendererBox";
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useEffect } from "react";
 import { getData } from "@/data/data";
-import { useSearchParams } from "next/navigation";
 
 export default function Home() {
   const [promptValue, setPromptValue] = useState<{
@@ -16,11 +15,15 @@ export default function Home() {
   }>({ response: "", type: "" });
 
   const [isloading, startTransition] = useTransition();
+  const [agentId, setAgentId] = useState<string | null>(null);
 
-  const searchParams = useSearchParams();
+  useEffect(() => {
+    const queryString = window.location.search;
+    const searchParams = new URLSearchParams(queryString);
+    setAgentId(searchParams.get("agentId"));
 
-  const agentId = searchParams.get("agentId");
-  console.log("agent id ", agentId);
+    // Utilisez agentId ici comme vous en avez besoin
+  }, []);
 
   const handleTextSubmit = (text: string) => {
     setPromptValue({ response: text, type: "text" });
