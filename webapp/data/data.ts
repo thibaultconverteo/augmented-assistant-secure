@@ -12,10 +12,12 @@ const key = "sessionId";
 export async function getData(
   prompt: string | undefined,
   chatHistory: string | null,
-  ai_model: string | null
+  ai_model: string | null,
+  agentId: string | null
 ) {
   const cleanedAiModel = ai_model?.replace(/['"]+/g, "");
   const selectedUrl = url[cleanedAiModel as keyof typeof url];
+
   logger.info(`user prompt: ${prompt}`);
   if (session_id !== "") {
     logger.info(`session id: ${session_id}`);
@@ -28,6 +30,7 @@ export async function getData(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...(agentId !== null && { agentId: agentId }),
       },
       body: JSON.stringify({ prompt: prompt?.toLowerCase() }),
     });
@@ -51,6 +54,7 @@ export async function getData(
     headers: {
       "Content-Type": "application/json",
       sessionId: session_id,
+      ...(agentId !== null && { agentId: agentId }),
     },
     body: JSON.stringify({ prompt: prompt?.toLowerCase() }),
   });

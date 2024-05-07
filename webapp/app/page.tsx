@@ -3,6 +3,7 @@ import TextAreaForm from "@/components/layout/textAreaForm";
 import TextRendererBox from "@/components/layout/textRenderer/textRendererBox";
 import React, { useState, useTransition } from "react";
 import { getData } from "@/data/data";
+import { useSearchParams } from "next/navigation";
 
 export default function Home() {
   const [promptValue, setPromptValue] = useState<{
@@ -15,6 +16,12 @@ export default function Home() {
   }>({ response: "", type: "" });
 
   const [isloading, startTransition] = useTransition();
+
+  const searchParams = useSearchParams();
+
+  const agentId = searchParams.get("agentId");
+  console.log("agent id ", agentId);
+
   const handleTextSubmit = (text: string) => {
     setPromptValue({ response: text, type: "text" });
     setApiResponse({ response: "...", type: "text" });
@@ -22,7 +29,7 @@ export default function Home() {
     const ai_model = sessionStorage.getItem("ai_model");
 
     startTransition(() => {
-      getData(text, chatHistory, ai_model).then(
+      getData(text, chatHistory, ai_model, agentId).then(
         (data: { response: string; type: string }) => {
           sessionStorage.chat_history = JSON.stringify(
             JSON.parse(sessionStorage.chat_history ?? "[]").slice(0, -1)
