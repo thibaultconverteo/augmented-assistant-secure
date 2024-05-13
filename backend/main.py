@@ -66,9 +66,15 @@ def process_prompt():
     
     headers_dict = dict(flask.request.headers)
     logger.log_text(f'request headers {json.dumps(headers_dict)}')
+    agent_id_key = 'Agentid'
+    if agent_id_key in headers_dict:
+        agent_id = headers_dict[agent_id_key]
+    else:
+        agent_id = AGENT_ID
+    
+    logger.log_text(f'agent id {agent_id}')
+
     session_id = headers_dict.get('Sessionid')
-    logger.log_text(f"session id {session_id}", severity='INFO')
-    logger.log_text(f"session id {type(session_id)}", severity='INFO')
     if session_id == '' or session_id is None:
         logger.log_text(f"could not retrieve session id from header, intializating one", severity='INFO')
         session_id = uuid.uuid4()
@@ -98,7 +104,7 @@ def process_prompt():
 
     session_client = dialogflow.SessionsClient(credentials=creds, client_options=client_options)
     
-    session_path = session_client.session_path(project_id, LOCATION, AGENT_ID, session_id)
+    session_path = session_client.session_path(project_id, LOCATION, agent_id, session_id)
 
     language_code = 'en'
     text_input = types.TextInput(text=prompt)
@@ -148,12 +154,12 @@ def process_prompt():
         'response': chat_response, 
         'params':logs_params_dict, 
         'sessionId': str(session_id),
-        'agent': AGENT_ID
+        'agent': agent_id
         }
 
     gs_client = storage.Client()
     logs_bucket = gs_client.get_bucket(LOGS_BUCKET_NAME)
-    log_blob = logs_bucket.blob(f'{LOGS_BLOB_PREFIX}{AGENT_ID}_{log_ts}.json') 
+    log_blob = logs_bucket.blob(f'{LOGS_BLOB_PREFIX}{agent_id}_{log_ts}.json') 
     log_blob.upload_from_string(json.dumps(log_dict))
 
     return {'type':response_type, 'response':chat_response, 'sessionId': session_id}
