@@ -1,7 +1,7 @@
 "use client";
 import TextAreaForm from "@/components/layout/textAreaForm";
 import TextRendererBox from "@/components/layout/textRenderer/textRendererBox";
-import React, { useState } from "react";
+import React, { useState, useTransition, useEffect } from "react";
 import { getData } from "@/data/data";
 
 export default function Home() {
@@ -9,23 +9,37 @@ export default function Home() {
     response: string;
     type: string;
   }>({ response: "", type: "" });
-  const [isloading, setIsLoading] = useState(false);
   const [apiResponse, setApiResponse] = useState<{
     response: string;
     type: string;
   }>({ response: "", type: "" });
 
+  const [isloading, startTransition] = useTransition();
+  const [agentId, setAgentId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const queryString = window.location.search;
+    const searchParams = new URLSearchParams(queryString);
+    setAgentId(searchParams.get("agentId"));
+
+    // Utilisez agentId ici comme vous en avez besoin
+  }, []);
+
   const handleTextSubmit = (text: string) => {
-    setIsLoading(true);
     setPromptValue({ response: text, type: "text" });
     setApiResponse({ response: "...", type: "text" });
+    const chatHistory = sessionStorage.getItem("chat_history");
+    const ai_model = sessionStorage.getItem("ai_model");
 
-    getData(text).then((data: { response: string; type: string }) => {
-      sessionStorage.chat_history = JSON.stringify(
-        JSON.parse(sessionStorage.chat_history ?? "[]").slice(0, -1)
+    startTransition(() => {
+      getData(text, chatHistory, ai_model, agentId).then(
+        (data: { response: string; type: string }) => {
+          sessionStorage.chat_history = JSON.stringify(
+            JSON.parse(sessionStorage.chat_history ?? "[]").slice(0, -1)
+          );
+          setApiResponse(data);
+        }
       );
-      setApiResponse(data);
-      setIsLoading(false);
     });
   };
 
