@@ -61,19 +61,9 @@ def process_prompt():
     params = dict(flask.request.args)
     logger.log_text(f'request params {json.dumps(params)}')
     
-    # session_id = params.get('sessionId')
-    # logger.log_text(f"retrieved session id {session_id} from payload", severity='INFO')
-    
     headers_dict = dict(flask.request.headers)
     logger.log_text(f'request headers {json.dumps(headers_dict)}')
-    agent_id_key = 'Agentid'
-    if agent_id_key in headers_dict:
-        agent_id = headers_dict[agent_id_key]
-    else:
-        agent_id = AGENT_ID
     
-    logger.log_text(f'agent id {agent_id}')
-
     session_id = headers_dict.get('Sessionid')
     if session_id == '' or session_id is None:
         logger.log_text(f"could not retrieve session id from header, intializating one", severity='INFO')
@@ -81,16 +71,29 @@ def process_prompt():
     logger.log_text(f"session id {session_id}", severity='INFO')
 
 
+    # session_id = params.get('sessionId')
+    # logger.log_text(f"retrieved session id {session_id} from payload", severity='INFO')
+    
+    agent_id_key = 'Agentid'
+    if agent_id_key in headers_dict:
+        agent_id = headers_dict[agent_id_key]
+    else:
+        agent_id = AGENT_ID
+    
+    logger.log_text(f'session id {session_id} agent id {agent_id}')
+
+    
+
     data = flask.request.data.decode()
-    logger.log_text(f'payload\n{data}')
+    logger.log_text(f'session id {session_id} payload\n{data}')
     if data == '':
-        logger.log_text("could not retrieve prompt from payload, defaulting to returning a joke", severity='INFO')
+        logger.log_text("session id {session_id} could not retrieve prompt from payload, defaulting to returning a joke", severity='INFO')
         data = json.dumps({"prompt" : "just write something funny, but appropriate", "response_type" : "txt"})
 
     data_dict = json.loads(data)
     prompt = data_dict.get('prompt')
     if prompt == '' or prompt is None:
-        logger.log_text("could not retrieve prompt from payload, defaulting to returning a joke", severity='INFO')
+        logger.log_text("session id {session_id} could not retrieve prompt from payload, defaulting to returning a joke", severity='INFO')
         prompt = "just write something funny, but appropriate"
 
     
@@ -112,9 +115,9 @@ def process_prompt():
     request = types.DetectIntentRequest(
         session=session_path, query_input=query_input
     )
-    logger.log_text('detecting intent with chatbot')
+    logger.log_text('session id {session_id} detecting intent with chatbot')
     response = session_client.detect_intent(request=request)
-    logger.log_text('response received')
+    logger.log_text('session id {session_id} response received')
     # content_list = list()
     # for response_message in response.query_result.response_messages:
     #     if hasattr(response_message, 'text'):
@@ -122,18 +125,18 @@ def process_prompt():
     #         logger.log_text(content_line)
     #         content_list.append(content_line)
             
-    logger.log_text(str(response))
+    logger.log_text(f'session id {session_id} response: {response}')
     params_dict = dict(response.query_result.parameters)
     # params_dict = dict(response.parameters)
     logger.log_struct(params_dict)
     for key, value in params_dict.items():
-        logger.log_text(f'{key}:\n{value}\n')
+        logger.log_text(f'session id {session_id} {key}:\n{value}\n')
     # response_type = params_dict['$request.generative.response-type']
     response_type = 'html'
     
     if 'success' in params_dict and params_dict['success'] == False:
         chat_response = NO_DATA_HTML
-        logger.log_text('overriding agent response with fail safe HTML')
+        logger.log_text('session id {session_id} overriding agent response with fail safe HTML')
     else:
         chat_response = params_dict['output']
     
@@ -144,15 +147,16 @@ def process_prompt():
 
     # log results to cloud storage for analytics
     log_ts = datetime.now().strftime('%Y%m%d %H%M%S')
-    logs_params_dict = dict()
+    logs_params_list = list()
+    
     for key, value in params_dict.items():
-        key = key.replace('$', '').replace('.', '_').replace('-', '_')
-        logs_params_dict[key] = value
+        if key != 'key':
+            logs_params_list.append({'key': key, 'value':value})
     log_dict ={
         'timestamp':log_ts, 
         'user_prompt': response.query_result.text, 
         'response': chat_response, 
-        'params':logs_params_dict, 
+        'params':logs_params_list, 
         'sessionId': str(session_id),
         'agent': agent_id
         }

@@ -4,7 +4,7 @@ SERVICE_ACCOUNT_EMAIL = '815180401364-compute@developer.gserviceaccount.com'
 PROJECT_ID = 'c-augmented-chatbot'
 
 LOGS_BUCKET_NAME = 'c-augmented-chatbot-dialogflow-logs'
-LOGS_BLOB_PREFIX = 'v1/'
+LOGS_BLOB_PREFIX = 'v2/'
 # BUCKET_NAME = 'c-robert-sandbox-drive-content'
 # US_BUCKET_NAME = 'c-robert-sandbox-drive-content-us'
 
