@@ -118,12 +118,7 @@ def process_prompt():
     logger.log_text('session id {session_id} detecting intent with chatbot')
     response = session_client.detect_intent(request=request)
     logger.log_text('session id {session_id} response received')
-    # content_list = list()
-    # for response_message in response.query_result.response_messages:
-    #     if hasattr(response_message, 'text'):
-    #         content_line = response_message.text.text[0]
-    #         logger.log_text(content_line)
-    #         content_list.append(content_line)
+    
             
     logger.log_text(f'session id {session_id} response: {response}')
     params_dict = dict(response.query_result.parameters)
