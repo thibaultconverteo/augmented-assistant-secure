@@ -8,21 +8,18 @@ import os, json, re, time, uuid
 from datetime import datetime
 from numpy import random
 
-from google.cloud import storage, logging, tasks_v2
-# import vertexai
-# from vertexai.preview.generative_models import GenerativeModel, Part
-# from vertexai.language_models import CodeGenerationModel
+from google.cloud import storage, logging, tasks_v2, bigquery
+import vertexai
+from vertexai.preview.generative_models import GenerativeModel, GenerationConfig
+from vertexai.language_models import CodeGenerationModel
 import google.auth
 
 # from mistralai.client import MistralClient
 # from mistralai.models.chat_completion import ChatMessage
 
-from google.cloud import dialogflowcx_v3beta1 as dialogflow
-from google.cloud.dialogflowcx_v3beta1 import types
-
 from utils import task
-from config import SERVICE_NAME, LOCATION, PROVIDER, FAIL_SAFE_HTML, SCOPES, LOGS_BUCKET_NAME, LOGS_BLOB_PREFIX, AGENT_ID
-from config import NO_DATA_HTML
+from config import SERVICE_NAME, SCOPES, HELLO_WORLD_HTML, SESSIONS_BUCKET_NAME, GENERATITVE_PROMPT, TABLE_SCHEMA, BQ_PROJECT_ID
+from config import DATA_PROMT
 
 app = Flask(__name__)
 CORS(app)
@@ -41,8 +38,12 @@ res = logging.Resource(
         }
     )
 
+gs_client = storage.Client()
+sessions_bucket = gs_client.get_bucket(SESSIONS_BUCKET_NAME)
 
 creds, project = google.auth.default(scopes=SCOPES)
+vertexai.init(project=project_id, location="europe-west1")
+    
 
 # logging client
 log_client = logging.Client()
@@ -58,110 +59,131 @@ ct_client = tasks_v2.CloudTasksClient()
 def process_prompt():
     
     
-    params = dict(flask.request.args)
-    logger.log_text(f'request params {json.dumps(params)}')
-    
+    data = flask.request.data.decode()
+    logger.log_text(f'request data {data}')
+    params = json.loads(data)
+    user_prompt = params.get('prompt')
+    if user_prompt == '':
+        logger.log_text('could not retrieve prompt')
+        return {'type':response_type, 'response':HELLO_WORLD_HTML, 'sessionId': session_id}
+
     headers_dict = dict(flask.request.headers)
     logger.log_text(f'request headers {json.dumps(headers_dict)}')
-    
     session_id = headers_dict.get('Sessionid')
     if session_id == '' or session_id is None:
         logger.log_text(f"could not retrieve session id from header, intializating one", severity='INFO')
         session_id = uuid.uuid4()
+        step = 0
+        session_status = {
+                    'intent':None,
+                    'result':None,
+                    'response':None
+                }
+        
+        session_log = {
+            'session_id':session_id,
+            'steps':[
+                session_status
+            ]
+        }
+    else:
+        sessions_blob = sessions_bucket.get_blob(session_id)
+        session_log = json.loads(sessions_blob.download_as_string().decode())
     logger.log_text(f"session id {session_id}", severity='INFO')
 
-
-    # session_id = params.get('sessionId')
-    # logger.log_text(f"retrieved session id {session_id} from payload", severity='INFO')
     
-    agent_id_key = 'Agentid'
-    if agent_id_key in headers_dict:
-        agent_id = headers_dict[agent_id_key]
-    else:
-        agent_id = AGENT_ID
+    response_schema = {
+        "type": "ARRAY",
+        "items": {
+            "type": "OBJECT",
+            "properties": {
+                "intent": {"type": "STRING"},
+                "sql_query": {"type": "STRING"},
+                "html_code": {"type": "STRING"},
+            },
+            "required": [
+                "intent",
+                ],
+        },
+    }
+
+    model = GenerativeModel("gemini-1.5-pro")
+    # model = GenerativeModel("gemini-1.5-flash-001")
+    generation_config = GenerationConfig(
+            response_mime_type="application/json",
+            response_schema=response_schema,
+            max_output_tokens=8092,
+            temperature=0.1,
+            top_p=1,
+        )
     
-    logger.log_text(f'session id {session_id} agent id {agent_id}')
-
-    
-
-    data = flask.request.data.decode()
-    logger.log_text(f'session id {session_id} payload\n{data}')
-    if data == '':
-        logger.log_text("session id {session_id} could not retrieve prompt from payload, defaulting to returning a joke", severity='INFO')
-        data = json.dumps({"prompt" : "just write something funny, but appropriate", "response_type" : "txt"})
-
-    data_dict = json.loads(data)
-    prompt = data_dict.get('prompt')
-    if prompt == '' or prompt is None:
-        logger.log_text("session id {session_id} could not retrieve prompt from payload, defaulting to returning a joke", severity='INFO')
-        prompt = "just write something funny, but appropriate"
-
-    
-    
-
-    if LOCATION != 'global':
-        api_endpoint = f"{LOCATION}-dialogflow.googleapis.com"
-    else:
-        api_endpoint = "dialogflow.googleapis.com"
-    client_options = {"api_endpoint": api_endpoint}
-
-    session_client = dialogflow.SessionsClient(credentials=creds, client_options=client_options)
-    
-    session_path = session_client.session_path(project_id, LOCATION, agent_id, session_id)
-
-    language_code = 'en'
-    text_input = types.TextInput(text=prompt)
-    query_input = types.QueryInput(text=text_input, language_code=language_code)
-    request = types.DetectIntentRequest(
-        session=session_path, query_input=query_input
+    prompt = GENERATITVE_PROMPT.format(
+        prompt=user_prompt,
+        context_string="",
+        csv_data_string="",
+        last_sql_string="",
+        table_schema=TABLE_SCHEMA
+        )
+    logger.log_text(f'prompt:\n{prompt}')
+    response = model.generate_content(
+        prompt,
+        generation_config=generation_config,
     )
-    logger.log_text('session id {session_id} detecting intent with chatbot')
-    response = session_client.detect_intent(request=request)
-    logger.log_text('session id {session_id} response received')
+    logger.log_text(response.text)
+
+    json_response = json.loads(response.text)[0]
+
+    intent = json_response['intent']
+    if intent == 'sql':
+        sql_query = json_response['sql_query']
+        bq_client = bigquery.Client(project=BQ_PROJECT_ID)
+        bq_result = bq_client.query(sql_query).result()
+        result_rows = [row for row in bq_result]
+        
+        header_fields = result_rows[0].keys()
+        header = ','.join([field for field in header_fields])
+        data = '\n'.join([header]+[','.join(["%s"%result_row[field] for field in header_fields]) for result_row in result_rows])
+        
+    response_schema = {
+        "type": "ARRAY",
+        "items": {
+            "type": "OBJECT",
+            "properties": {
+                "html_code": {"type": "STRING"},
+            },
+            "required": [
+                "html_code",
+                ],
+        },
+    }
+
+    generation_config = GenerationConfig(
+            response_mime_type="application/json",
+            response_schema=response_schema,
+            max_output_tokens=8092,
+            temperature=0.1,
+            top_p=1,
+        )
     
-            
-    logger.log_text(f'session id {session_id} response: {response}')
-    params_dict = dict(response.query_result.parameters)
-    # params_dict = dict(response.parameters)
-    logger.log_struct(params_dict)
-    for key, value in params_dict.items():
-        logger.log_text(f'session id {session_id} {key}:\n{value}\n')
-    # response_type = params_dict['$request.generative.response-type']
+    
+    prompt = DATA_PROMT.format(user_prompt=user_prompt, sql_result=data)
+    logger.log_text(f'prompt:\n{prompt}')
+    response = model.generate_content(
+        prompt,
+        generation_config=generation_config,
+    )
+    logger.log_text(response.text)
+    json_response = json.loads(response.text)[0]
+
+    html_response = json_response['html_code']
+    
+
+
+    
     response_type = 'html'
+    # chat_response = HELLO_WORLD_HTML
     
-    if 'success' in params_dict and params_dict['success'] == False:
-        chat_response = NO_DATA_HTML
-        logger.log_text('session id {session_id} overriding agent response with fail safe HTML')
-    else:
-        chat_response = params_dict['output']
-    
-    # content = '\n'.join(content_list)
-    # logger.log_text(content)
-    # if content == '':
-    #     content = f'Apologies, I tried the following query but it returned no result'
-
-    # log results to cloud storage for analytics
-    log_ts = datetime.now().strftime('%Y%m%d %H%M%S')
-    logs_params_list = list()
-    
-    for key, value in params_dict.items():
-        if key != 'key':
-            logs_params_list.append({'key': key, 'value':value})
-    log_dict ={
-        'timestamp':log_ts, 
-        'user_prompt': response.query_result.text, 
-        'response': chat_response, 
-        'params':logs_params_list, 
-        'sessionId': str(session_id),
-        'agent': agent_id
-        }
-
-    gs_client = storage.Client()
-    logs_bucket = gs_client.get_bucket(LOGS_BUCKET_NAME)
-    log_blob = logs_bucket.blob(f'{LOGS_BLOB_PREFIX}{agent_id}_{log_ts}.json') 
-    log_blob.upload_from_string(json.dumps(log_dict))
-
-    return {'type':response_type, 'response':chat_response, 'sessionId': session_id}
+    return {'type':response_type, 'response':html_response, 'sessionId': session_id}
 
 
 
