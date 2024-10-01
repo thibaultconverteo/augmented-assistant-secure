@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            background-color: #000000;
+        }
+
+        #chatbox {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px; /* Add padding for better visual separation */
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            /* width: 80%; */
+            /* max-width: 80%; */
+            word-wrap: break-word; /* Break long words */
+            box-sizing: border-box; /* Include padding and border in element's total width and height */
+        }
+
+        .user-message {
+            background-color: #efe79e;
+            align-self: flex-start;
+            width: 80%;
+        }
+
+        .bot-message {
+            background-color: #bead14;
+            align-self: flex-end; /* Align bot messages to the left */
+            /* width: 80%; */
+        }
+
+
+        #input-area {
+            padding: 10px;
+            display: flex;
+        }
+
+        #user-input {
+            flex: 1;
+            margin-right: 10px;
+            border-radius: 5px;
+            padding: 8px;
+        }
+
+        #send-button {
+            padding: 8px 15px;
+            border-radius: 5px;
+            background-color: #2a2e06;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        #send-button.loading {
+            pointer-events: none; /* Disable button clicks */
+            opacity: 0.7; /* Reduce opacity */
+             /* Animate button background */
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { background-color: #2a2e06; }
+            50% { background-color: #4d5219; }
+            100% { background-color: #2a2e06; }
+        }
+
+       #loading { display: none; } /* Hide the loading text element. Use button animation */
+
+    </style>
+</head>
+
+<body>
+    <div id="chatbox"></div>
+    <div id="input-area">
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button id="send-button">Send</button>
+    </div>
+
+
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const backendUrl = 'https://pprod-analytics-assistant-backend-815180401364.europe-west1.run.app/processPrompt';
+        let sessionId = null;
+
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        async function sendMessage() {
+            const prompt = userInput.value;
+            if (prompt.trim() === '') return;
+
+            displayMessage(prompt, 'user-message');
+            userInput.value = '';
+            userInput.disabled = true; // Disable input
+            sendButton.classList.add("loading"); // Add loading class to button
+
+
+            const response = await fetch(backendUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ prompt: prompt, sessionId: sessionId }),
+            });
+
+
+            userInput.disabled = false; // Re-enable input
+            sendButton.classList.remove("loading"); // Remove loading class
+
+
+            const data = await response.json();
+            if (data.sessionId) {
+                sessionId = data.sessionId;
+            }
+            if (data.response) {
+                displayMessage(data.response, 'bot-message');
+            } else {
+                console.error('Invalid response from backend:', data);
+                displayMessage('Error: Could not get a response from the chatbot.', 'bot-message');
+            }
+        }
+
+        function displayMessage(prompt, messageClass) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', messageClass);
+            messageElement.innerHTML = prompt;
+            chatbox.appendChild(messageElement);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+    </script>
+</body>
+
+</html>
