@@ -4,7 +4,8 @@ import logger from "@/lib/logger";
 let session_id = "";
 const url = {
   general:
-    "https://analytics-assistant-backend-4o52ykz34a-ew.a.run.app/processPrompt",
+    // "https://analytics-assistant-backend-4o52ykz34a-ew.a.run.app/processPrompt",
+    "https://pprod-analytics-assistant-backend-4o52ykz34a-ew.a.run.app/processPrompt",
   ga: "https://augmented-chatbot-demo-anonimized-4o52ykz34a-ew.a.run.app/processPrompt",
 };
 const key = "sessionId";
