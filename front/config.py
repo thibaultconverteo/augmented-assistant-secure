@@ -3,7 +3,7 @@ PROJECT_NUMBER = '815180401364'
 REGION = 'europe-west1'
 BQ_PROJECT_ID = 'c-genai-sandbox-analytics'
 
-SERVICE_NAME = 'test-analytics-assistant'
+SERVICE_NAME = 'dev-assistant-secure'
 # BASE_URL = f'https://{SERVICE_NAME}-{PROJECT_NUMBER}-{REGION}.run.app'
 
 

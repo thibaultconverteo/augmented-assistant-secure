@@ -2,23 +2,13 @@
 <html lang="en">
 
 <head>
-    <!-- add TL-->
-    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first-->
-    <script src="https://www.gstatic.com/firebasejs/7.18/firebase-app.js"></script>
-    <!-- Add Firebase Auth service-->
-    <script src="https://www.gstatic.com/firebasejs/7.18/firebase-auth.js"></script>
-    <script src="/config.js"></script>
-    <script src="/firebase.js"></script>
-    <!-- add TL-->
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22></text></svg>">
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <title>Chatbot</title>
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             display: flex;
             flex-direction: column;
             height: 100vh;
@@ -47,14 +37,21 @@
         .user-message {
             background-color: #757573;
             align-self: flex-start;
-            float: left;
         }
 
-        .bot-message {
-            background-color: #000000;
+        .bot-message iframe {
+            background-color: #454643;
             align-self: flex-end;
-            float: right;
+            height: auto;
+            display: block;
         }
+
+        /* .bot-message iframe {
+            width: 80%; 
+            border: none;
+            height: auto;
+            display: block;
+        } */
 
         #input-area {
             padding: 10px;
@@ -105,18 +102,6 @@
 </head>
 
 <body>
-    <nav class="teal darken-3">
-      <div class="nav-wrapper container">
-        <!--a class="brand-logo center" href="#!">CLASS TITLE</a-->
-      <ul class="left" id="nav-mobile">
-        <button class="waves-effect waves-light btn" id="signInButton">Sign In with Google</button>
-      </ul>
-    </div>
-  </nav>
-  
-  <script>
-    document.getElementById('signInButton').addEventListener("click", toggle);
-  </script>
     <div id="chatbox"></div>
     <div id="input-area">
         <input type="text" id="user-input" placeholder="Type your message...">
@@ -127,7 +112,7 @@
         const chatbox = document.getElementById('chatbox');
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
-        
+        const backendUrl = 'https://pprod-analytics-assistant-backend-815180401364.europe-west1.run.app/processPrompt';
         let sessionId = null;
 
         sendButton.addEventListener('click', sendMessage);
@@ -146,15 +131,13 @@
             userInput.disabled = true; // Disable input
             sendButton.classList.add("loading"); // Add loading class to button
 
-            const idToken = await firebase.auth().currentUser.getIdToken();
+
             const response = await fetch(backendUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + idToken, // Add ID token to Authorization header
                 },
                 body: JSON.stringify({ prompt: prompt, sessionId: sessionId }),
-                credentials: 'include'
             });
 
 
@@ -191,17 +174,14 @@
                 const messageElement = document.createElement('iframe');
                 messageElement.classList.add('message', messageClass);
                 messageElement.srcdoc = prompt;
-                messageElement.addEventListener("load", resizeIframe);
+                
+                messageElement.onload = () => {
+                    messageElement.style.height = messageElement.contentWindow.document.body.scrollHeight*1.2 + 'px';
+                }
+                
                 chatbox.appendChild(messageElement);
                 chatbox.scrollTop = chatbox.scrollHeight;
-            }
-        }
-
-        function resizeIframe(obj) {
-            objs = document.getElementsByClassName('bot-message');
-            for (var i = 0; i < objs.length; i++) {
-                console.log(i);
-                objs[i].style.height = objs[i].contentWindow.document.body.scrollHeight*1.2 + 40 + 'px';
+                
             }
         }
     </script>
